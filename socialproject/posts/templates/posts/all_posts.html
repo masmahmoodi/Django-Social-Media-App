@@ -1,0 +1,109 @@
+{% extends 'users/base.html' %}
+{% load mathfilters %}
+{% load static %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-3 offset-md-4">
+      <h1>User Posts</h1>
+    </div>
+  </div>
+{% for post in posts %}
+<div class="row">
+    <div class="col-md-9">
+        <div class="media g-mb-30 media-comment">
+            <img class="d-flex g-width-50 g-height-50 rounded-circle g-mt-3 g-mr-15" src="{{post.user.profile.image.url}}" alt="Image Description">
+            <div class="media-body u-shadow-v18 g-bg-secondary g-pa-30">
+              <div class="g-mb-15">
+                <h5 class="h5 g-color-gray-dark-v1 mb-0">{{post.user.username}}</h5>
+                <span class="g-color-gray-dark-v4 g-font-size-12">{{post.created}}</span>
+              </div>
+              <p>{{post.caption}}</p>
+
+              <div class="img-container">
+                <img src="{{post.image.url}}">
+              </div>
+              <div class="social-icon">
+                
+                <a id="{{ post.id }}" class="btn-like">
+                  {% if logged_user in post.liked_by.all %}  
+                    <img  src="{% static 'users/images/redlike.png' %}"  width="25px" style="margin:7px;">
+                   
+                  {% else %}
+                  <img  src="{% static 'users/images/whitelike.png' %}"  width="25px" style="margin:7px;">
+              
+                  {% endif %}
+                </a>
+                <img  src="{% static 'users/images/comment.png' %}"  width="25px">
+                <img  src="{% static 'users/images/share.png' %}"  width="25px" style="margin:7px;">
+              </div>
+              <div >
+                 {% if post.liked_by.count < 1  %}
+                 {% elif post.liked_by.count == 1 %}
+                    <h6>{{ post.liked_by.first }}s like this  </h6>
+                 {% elif post.liked_by.count > 1 %} 
+                 <h6>{{ post.liked_by.first }}s &  {{ post.liked_by.count | sub:1 }} other likes this  </h6> 
+                 {% endif %}   
+              </div>
+              <div class="col-md-12 offset-md-1">
+                {% for comment in post.comments.all %}
+                <b>{{ comment.posted_by }}:</b>
+                  {{ comment.body }}
+                  <br>
+                {% endfor %}
+              </div>
+              <div>
+                <br>
+                <br><br><br>
+                <form method="post">
+                  {% csrf_token %}
+                  <label class="col-md-6 offset-md-1 ">
+                    
+                    <h5>Add Comment</h5>
+                  </label>
+                  {{ comment_form.body }}
+                  <input type="hidden" name="post_id" id="post_id" value="{{post.id}}">
+                  <input type="hidden" name="posted_by" id="posted_by" value="{{ logged_user }}">
+                  <br>
+                  <input type="submit" name="comment" class="btn btn-info">
+                </form>
+              </div>
+
+
+
+  
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+</div>
+
+
+
+
+ <script>
+
+
+
+window.CSRF_TOKEN = "{{ csrf_token }}"
+$(document).on('click', '.btn-like', function () {
+    var post_id = this.id;
+    
+
+    $.ajax({
+        method: "POST",
+        url: '/posts/like/',
+        data: { post_id: post_id, csrfmiddlewaretoken: window.CSRF_TOKEN },
+    })
+
+    window.location.href="http://127.0.0.1:8000/posts/feed/"
+
+});
+
+
+
+
+  
+ </script>
+{% endblock %}

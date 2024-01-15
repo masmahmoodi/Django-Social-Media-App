@@ -1,0 +1,28 @@
+{% extends 'users/base.html' %}
+
+
+
+{% block content  %}
+<div class="container login-container">
+    <div class="row">
+        <div class="col-md-12 login-form-1">
+            <h3>  Login User </h3>
+            <form method="post">
+                {% csrf_token %}
+                {% for field in form %}
+                <label >{{field.name}}:</label>
+                <div class="form-group">
+                    {{ field}}
+                </div>
+                {% endfor %}
+                <div class="form-group">
+                    <input type="submit" class="btnSubmit" value="Login" />
+                </div>
+                <div class="form-group">
+                    <a href="{% url 'password_reset'  %}" class="ForgetPwd">Forget Password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
